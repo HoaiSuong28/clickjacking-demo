@@ -15,9 +15,9 @@ const authenticateToken = require('../../middleware/auth.middleware');
 
 /**
  * GET /api/admin/security/stats
- * Lấy thống kê tổng quan về bot attacks
+ * Lấy thống kê tổng quan về bot attacks (PUBLIC - không cần đăng nhập)
  */
-router.get('/stats', authenticateToken, checkAdmin, async (req, res) => {
+router.get('/stats', async (req, res) => {
   try {
     const stats = logger.getStats();
     
@@ -157,9 +157,9 @@ router.get('/logs/:filename', authenticateToken, checkAdmin, async (req, res) =>
 
 /**
  * GET /api/admin/security/recent-attacks
- * Lấy danh sách các cuộc tấn công gần đây (từ log file hôm nay)
+ * Lấy danh sách các cuộc tấn công gần đây (PUBLIC - không cần đăng nhập)
  */
-router.get('/recent-attacks', authenticateToken, checkAdmin, async (req, res) => {
+router.get('/recent-attacks', async (req, res) => {
   try {
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     const todayLogFile = `bot-attacks-${today}.log`;

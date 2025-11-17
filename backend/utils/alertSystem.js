@@ -38,17 +38,17 @@ const CONFIG = {
   DESKTOP_NOTIFICATION: true
 };
 
-// Transporter email
+// Transporter email - DISABLED để tránh crash
 let emailTransporter = null;
-if (CONFIG.EMAIL_ENABLED && process.env.GMAIL_USER) {
-  emailTransporter = nodemailer.createTransporter({
-    service: 'gmail',
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_PASS
-    }
-  });
-}
+// if (CONFIG.EMAIL_ENABLED && process.env.GMAIL_USER) {
+//   emailTransporter = nodemailer.createTransporter({
+//     service: 'gmail',
+//     auth: {
+//       user: process.env.GMAIL_USER,
+//       pass: process.env.GMAIL_PASS
+//     }
+//   });
+// }
 
 // Tracking alerts (tránh spam)
 const alertHistory = new Map();

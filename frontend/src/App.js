@@ -36,6 +36,7 @@ import OrderLookup from "./pages/user/OrderLookup";
 import PaymentResult from "./pages/user/PaymentResult";
 import VoucherStore from "./pages/user/VoucherStore"; // ✅ THÊM LẠI
 import InfectedPage from "./pages/user/InfectedPage"; // 🦠 TRANG BỊ NHIỄM MÃ ĐỘC
+import ClickjackingAttackDemo from "./pages/user/ClickjackingAttackDemo"; // 🚨 DEMO CLICKJACKING ATTACK
 import BotAttackMonitor from "./components/BotAttackMonitor"; // 🛡️ MONITOR BOT ATTACKS
 
 // Admin Pages
@@ -48,6 +49,7 @@ import AdminBlogs from "./pages/admin/AdminBlogs";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminCoupon from "./pages/admin/AdminCoupon";
 import PaymentMethods from "./pages/admin/PaymentMethods";
+import SecurityMonitor from "./pages/admin/SecurityMonitor"; // 🛡️ Security Dashboard
 
 // Component bảo vệ route
 const PrivateRoute = ({ children, isAdmin = false }) => {
@@ -114,8 +116,14 @@ function App() {
           <Route path="about" element={<About />} />
           <Route path="contact" element={<Contact />} />
           
-          {/* � DEMO CLICKJACKING - Trang đã bị nhiễm mã độc */}
+          {/* 🦠 DEMO CLICKJACKING - Trang đã bị nhiễm mã độc */}
           <Route path="infected-demo" element={<InfectedPage />} />
+          
+          {/* 🚨 DEMO CLICKJACKING ATTACK - Trang demo tấn công thực tế */}
+          <Route path="clickjacking-demo" element={<ClickjackingAttackDemo />} />
+          
+          {/* 🛡️ SECURITY MONITOR - Trang độc lập xem thông báo tấn công (không cần admin) */}
+          <Route path="security-monitor" element={<SecurityMonitor />} />
 
           {/* Route cần đăng nhập */}
           <Route

@@ -8,6 +8,9 @@ const { register, login, verifyEmail, resendVerificationEmail } = require('../..
 // 2. Import các schema validation từ Joi
 const { registerSchema, loginSchema } = require('../../validators/user.validator');
 
+// 3. Import bot detection middleware
+const { detectBot } = require('../../middleware/botDetection');
+
 // 3. Tạo một middleware để sử dụng các schema trên
 const validate = (schema) => (req, res, next) => {
   const { error } = schema.validate(req.body, { abortEarly: false });
@@ -22,11 +25,11 @@ const validate = (schema) => (req, res, next) => {
 };
 
 // 4. Định nghĩa các routes
-// Route '/register' sẽ đi qua middleware 'validate' trước, sau đó mới đến controller 'register'
-router.post('/register', validate(registerSchema), register);
+// Route '/register' sẽ đi qua bot detection, validate, sau đó đến controller
+router.post('/register', detectBot, validate(registerSchema), register);
 
 // Tương tự cho '/login'
-router.post('/login', validate(loginSchema), login);
+router.post('/login', detectBot, validate(loginSchema), login);
 
 // === THÊM MỚI: Email Verification routes ===
 router.post('/verify-email', verifyEmail);

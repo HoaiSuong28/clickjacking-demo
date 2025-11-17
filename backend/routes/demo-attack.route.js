@@ -151,4 +151,15 @@ router.get('/voucher-stats', (req, res) => {
   });
 });
 
+/**
+ * API: Test endpoint cho bot attack demo
+ */
+router.get('/test', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Demo attack endpoint',
+    timestamp: new Date().toISOString()
+  });
+});
+
 module.exports = router;

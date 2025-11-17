@@ -14,12 +14,16 @@ const fs = require("fs");
 const axios = require("axios");
 
 // --- TÍCH HỢP SEQUELIZE ---
-// Nạp đối tượng db chứa sequelize instance và tất cả các model
+// --- Nạp đối tượng db chứa sequelize instance và tất cả các model
 const db = require('./models');
 
-// 🚨 CLOUDFLARE-STYLE LOGGING & ALERT SYSTEM
-const logger = require('./utils/logger');
-const { startAlertMonitoring } = require('./utils/alertSystem');
+// 🚨 SIMPLE LOGGER (không dùng winston để tránh crash)
+const logger = {
+  info: (...args) => console.log('[INFO]', ...args),
+  error: (...args) => console.error('[ERROR]', ...args),
+  warn: (...args) => console.warn('[WARN]', ...args),
+  debug: (...args) => console.log('[DEBUG]', ...args)
+};
 
 // 🛡️ ANTI-CLICKJACKING MIDDLEWARE
 const { antiClickjacking, presets, detectIframeRequest, testAntiClickjacking } = require('./middleware/antiClickjacking');
@@ -52,8 +56,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 🛡️ ANTI-CLICKJACKING PROTECTION
-// Áp dụng X-Frame-Options và CSP để chống clickjacking
+// 🛡️ ANTI-CLICKJACKING PROTECTION - ENABLED
 app.use(antiClickjacking(presets.dev)); // Dùng dev preset để có logging
 app.use(detectIframeRequest); // Phát hiện requests từ iframe
 app.use(testAntiClickjacking); // Thêm debug headers
@@ -79,7 +82,6 @@ app.use('/images', express.static(path.join(__dirname, 'uploads', 'blogs')));
 /* ---------------- MIDDLEWARE XÁC THỰC ---------------- */
 
 // Middleware xác thực JWT cho tất cả các route /api/admin
-// Middleware xác thực JWT cho tất cả route /api/admin
 app.use(
   '/api/admin',
   expressjwt({ secret: process.env.JWT_SECRET, algorithms: ['HS256'] }),
@@ -205,22 +207,12 @@ const botStatsRouter = require('./routes/bot-stats.route');
 /* ---------------- USE ROUTERS (Tổ chức lại theo prefix) ---------------- */
 const apiRouter = express.Router();
 
-// 🛡️ Track page visits for bot detection (optional - apply globally or selectively)
-apiRouter.use(trackPageVisit);
-
-// 🎯 Bot Stats API - Real-time monitoring
+// 🎯 Bot Stats API - Real-time monitoring (không cần bot detection)
 apiRouter.use('/bot-stats', botStatsRouter);
 
-// 🎯 Demo Attack Routes - Bot testing endpoints
-apiRouter.use('/demo-attack', demoAttackRouter);
-
-// Public User Routes
+// Public User Routes (không cần bot detection)
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/products', productsUserRouter);
-
-// 🛡️ Áp dụng bot detection cho các route nhạy cảm
-apiRouter.use('/cart', detectBot, cartUserRouter);  // Bảo vệ giỏ hàng
-apiRouter.use('/user/coupons', detectBot, userCouponsRoute);  // Bảo vệ voucher
 apiRouter.use('/blogs', blogsUserRouter);
 apiRouter.use('/home', homeRouter);
 apiRouter.use('/shipping', shippingRouter);
@@ -229,6 +221,15 @@ apiRouter.use('/guest-history', guestHistoryRouter);
 apiRouter.use('/guest-orders', guestOrdersRouter);
 apiRouter.use('/password', passwordRouter);
 apiRouter.use('/payment', paymentRoutes);
+
+// ✅ User Routes - KHÔNG có bot detection (hoạt động bình thường)
+apiRouter.use('/cart', cartUserRouter);
+apiRouter.use('/user/coupons', userCouponsRoute);
+
+// 🛡️ DEMO ATTACK Route - CHỈ endpoint này mới có bot detection
+// Áp dụng trackPageVisit và detectBot CHỈ cho demo-attack
+apiRouter.use('/demo-attack', trackPageVisit, detectBot, demoAttackRouter);
+
 // Authenticated User Routes
 const userAuthMiddleware = (req, res, next) => { if(req.auth) req.user = req.auth; next(); };
 apiRouter.use('/profile', authenticateUser, userAuthMiddleware, profileRouter);
@@ -248,13 +249,13 @@ apiRouter.use('/admin/products', adminProductsRouter);
 apiRouter.use('/admin/reviews', adminReviewsRouter);
 apiRouter.use('/admin/users', adminUsersRouter);
 
-// 🛡️ Security Dashboard (Cloudflare-style)
-const securityRouter = require('./routes/admin/security.route');
-apiRouter.use('/admin/security', securityRouter);
-
 // 🤖 Bot Control API
 const botControlRouter = require('./routes/bot-control.route');
 apiRouter.use('/bot-control', botControlRouter);
+
+// 🛡️ Security Monitor (PUBLIC - không cần auth)
+const securityRouter = require('./routes/admin/security.route');
+apiRouter.use('/security', securityRouter);
 
 // Gắn router chính vào /api
 app.use('/api', apiRouter);
@@ -310,6 +311,18 @@ app.use((err, req, res, next) => {
 /* ---------------- START SERVER ---------------- */
 const PORT = process.env.PORT || 5000;
 
+// Global error handlers
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  logger.error(`Uncaught Exception: ${error.message}`);
+  // Không exit process để server tiếp tục chạy
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  logger.error(`Unhandled Rejection: ${reason}`);
+});
+
 db.sequelize.authenticate()
   .then(() => {
     console.log('✅ Kết nối CSDL thành công bằng Sequelize.');
@@ -323,9 +336,9 @@ db.sequelize.authenticate()
       logger.info(`🚀 Backend đang chạy tại http://localhost:${PORT}`);
       console.log(`🚀 Backend đang chạy tại http://localhost:${PORT}`);
       
-      // 🚨 Khởi động hệ thống Alert (Cloudflare-style)
-      startAlertMonitoring();
-      logger.info('🛡️ Cloudflare-style Alert System initialized');
+      // 🚨 Khởi động hệ thống Alert (Cloudflare-style) - TEMPORARY DISABLED
+      // startAlertMonitoring();
+      // logger.info('🛡️ Cloudflare-style Alert System initialized');
     });
   })
   .catch(err => {

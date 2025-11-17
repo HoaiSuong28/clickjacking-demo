@@ -5,6 +5,9 @@ const router = express.Router();
 const productController = require('../../controllers/product.controller');
 const reviewController = require('../../controllers/review.controller');
 
+// 🛡️ Bot Detection Middleware
+const { detectBot } = require('../../middleware/botDetection');
+
 const { expressjwt } = require('express-jwt');
 const multer = require('multer');
 const path = require('path');
@@ -26,9 +29,10 @@ const authenticateUser = expressjwt({ secret: process.env.JWT_SECRET, algorithms
 const userAuthMiddleware = (req, res, next) => { if (req.auth) req.user = req.auth; next(); };
 
 // --- PRODUCTS ---
-router.get('/', productController.getAllProducts);
-router.get('/:id', productController.getProductById);
-router.get('/:id/variants', productController.getProductVariants);
+// 🛡️ Thêm bot detection để chặn spam
+router.get('/', detectBot, productController.getAllProducts);
+router.get('/:id', detectBot, productController.getProductById);
+router.get('/:id/variants', detectBot, productController.getProductVariants);
 
 // --- REVIEWS ---
 router.get('/:productId/reviews', reviewController.getProductReviews);

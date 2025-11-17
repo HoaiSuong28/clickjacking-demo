@@ -3,9 +3,34 @@ const router = express.Router();
 const { spawn } = require('child_process');
 const path = require('path');
 const logger = require('../utils/logger');
+const { clearBlacklist } = require('../middleware/botDetection'); // 🆕 Import clearBlacklist
 
 // Lưu trữ các process đang chạy
 const runningBots = new Map();
+
+/**
+ * @route POST /api/bot-control/clear-blacklist
+ * @desc 🔥 Xóa tất cả IP khỏi blacklist (FIX lỗi 403)
+ */
+router.post('/clear-blacklist', (req, res) => {
+  try {
+    const result = clearBlacklist();
+    logger.info('🧹 Blacklist cleared via API');
+    
+    res.json({
+      success: true,
+      message: `Đã xóa ${result.cleared} IP khỏi blacklist`,
+      cleared: result.cleared
+    });
+  } catch (error) {
+    logger.error('❌ Error clearing blacklist:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi khi xóa blacklist',
+      error: error.message
+    });
+  }
+});
 
 /**
  * @route POST /api/bot-control/dos-attack

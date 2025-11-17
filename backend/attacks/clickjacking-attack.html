@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎁 KHUYẾN MÃI ĐẶC BIỆT - NHẬN NGAY 500K!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        }
+
+        /* Main container */
+        .attack-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        /* Warning banner (for demo purposes) */
+        .demo-warning {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, #ff6b6b, #ee5a6f);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 100;
+            animation: pulse-warning 2s infinite;
+        }
+
+        @keyframes pulse-warning {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Promotion content */
+        .promo-content {
+            text-align: center;
+            margin-top: 50px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .promo-title {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .promo-subtitle {
+            font-size: 24px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .promo-description {
+            font-size: 18px;
+            color: #777;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        /* The FAKE button that user sees */
+        .fake-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            color: white;
+            padding: 25px 60px;
+            border: none;
+            border-radius: 50px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            animation: pulse-button 2s infinite;
+        }
+
+        @keyframes pulse-button {
+            0%, 100% { transform: scale(1); box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 15px 40px rgba(255, 107, 107, 0.6); }
+        }
+
+        .fake-button:hover {
+            transform: scale(1.08);
+            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.6);
+        }
+
+        .gift-icon {
+            font-size: 36px;
+            margin-right: 15px;
+            animation: rotate-gift 3s infinite;
+        }
+
+        @keyframes rotate-gift {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-15deg); }
+            75% { transform: rotate(15deg); }
+        }
+
+        /* The REAL iframe (invisible) positioned on top */
+        .invisible-iframe-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .invisible-iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 400px;
+            border: none;
+            pointer-events: auto;
+            /* Toggle opacity to see the iframe (for demo) */
+            opacity: 0; /* INVISIBLE TO USER */
+            /* opacity: 0.5; */ /* Uncomment to see what's underneath */
+        }
+
+        /* Attack status indicator */
+        .attack-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-width: 400px;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .attack-status h3 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .attack-status p {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+
+        .status-success {
+            color: #51cf66;
+        }
+
+        .status-blocked {
+            color: #ff6b6b;
+        }
+
+        .status-warning {
+            color: #ffd43b;
+        }
+
+        /* Toggle visibility button */
+        .toggle-visibility {
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .toggle-visibility:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Iframe error overlay */
+        .iframe-error {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 400px;
+            background: rgba(255, 0, 0, 0.1);
+            border: 3px dashed #ff6b6b;
+            border-radius: 10px;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 11;
+            pointer-events: none;
+        }
+
+        .iframe-error.show {
+            display: flex;
+        }
+
+        .iframe-error-message {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .iframe-error-message h2 {
+            color: #51cf66;
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .iframe-error-message p {
+            color: #555;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .shield-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Demo warning banner -->
+    <div class="demo-warning">
+        ⚠️ DEMO: Đây là trang tấn công giả lập - Để test bảo mật
+    </div>
+
+    <!-- Toggle iframe visibility -->
+    <button class="toggle-visibility" onclick="toggleIframeVisibility()">
+        👁️ Hiện/Ẩn Iframe
+    </button>
+
+    <!-- Main attack container -->
+    <div class="attack-container">
+        <!-- Fake promotional content -->
+        <div class="promo-content">
+            <h1 class="promo-title">
+                🎉 KHUYẾN MÃI ĐẶC BIỆT 🎉
+            </h1>
+            <p class="promo-subtitle">
+                Nhận ngay voucher 500.000đ
+            </p>
+            <p class="promo-description">
+                Chỉ cần click vào nút bên dưới để nhận ưu đãi!<br>
+                <strong>Chương trình có giới hạn, nhanh tay kẻo lỡ!</strong>
+            </p>
+
+            <!-- FAKE button (user thinks they're clicking this) -->
+            <button class="fake-button">
+                <span class="gift-icon">🎁</span>
+                NHẬN VOUCHER NGAY!
+            </button>
+        </div>
+
+        <!-- REAL iframe (invisible, positioned on top) -->
+        <div class="invisible-iframe-container">
+            <iframe 
+                id="attackIframe"
+                class="invisible-iframe"
+                src="http://localhost:3000/checkout"
+                title="hidden-attack-frame"
+                sandbox="allow-same-origin allow-scripts allow-forms"
+                onload="handleIframeLoad()"
+                onerror="handleIframeError()"
+            ></iframe>
+        </div>
+
+        <!-- Iframe error overlay -->
+        <div class="iframe-error" id="iframeError">
+            <div class="iframe-error-message">
+                <div class="shield-icon">🛡️</div>
+                <h2>✅ ATTACK BLOCKED!</h2>
+                <p>
+                    <strong>X-Frame-Options</strong> và <strong>CSP</strong><br>
+                    đã chặn iframe thành công!<br><br>
+                    User được bảo vệ 100% 🎉
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attack status panel -->
+    <div class="attack-status">
+        <h3>🚨 ATTACK STATUS</h3>
+        <p><strong>Target:</strong> http://localhost:3000/checkout</p>
+        <p><strong>Method:</strong> Invisible iframe overlay</p>
+        <p><strong>Goal:</strong> Trick user into clicking checkout button</p>
+        <hr style="margin: 10px 0; border: 1px solid #333;">
+        <p id="statusMessage" class="status-warning">⏳ Loading iframe...</p>
+        <p id="headersStatus" class="status-warning">🔍 Checking headers...</p>
+    </div>
+
+    <script>
+        // Initialize particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+        // Handle iframe load
+        function handleIframeLoad() {
+            console.log('%c🚨 CLICKJACKING ATTACK SCENARIO', 'color: red; font-size: 20px; font-weight: bold;');
+            console.log('%c════════════════════════════════════════', 'color: red;');
+            console.log('');
+            console.log('%c📊 ATTACK DETAILS:', 'color: orange; font-size: 16px; font-weight: bold;');
+            console.log('  🎯 Target: http://localhost:3000/checkout');
+            console.log('  🎭 Method: Invisible iframe overlay (opacity: 0)');
+            console.log('  👤 User sees: "NHẬN VOUCHER 500K" button');
+            console.log('  ⚡ User actually clicks: Hidden checkout button in iframe');
+            console.log('');
+            console.log('%c🔍 WHAT HAPPENED:', 'color: blue; font-size: 16px; font-weight: bold;');
+            
+            const iframe = document.getElementById('attackIframe');
+            
+            try {
+                // Try to access iframe content (will fail if headers are set)
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                if (iframeDoc && iframeDoc.body) {
+                    console.log('%c  ❌ ATTACK SUCCESS!', 'color: red; font-weight: bold;');
+                    console.log('  ⚠️  Iframe loaded successfully');
+                    console.log('  ⚠️  No security headers detected');
+                    console.log('  ⚠️  User clicks are being hijacked!');
+                    
+                    document.getElementById('statusMessage').innerHTML = 
+                        '<span class="status-success">❌ ATTACK SUCCESSFUL</span><br>Iframe loaded! User is vulnerable!';
+                    document.getElementById('headersStatus').innerHTML = 
+                        '<span class="status-success">⚠️ No protection detected</span>';
+                } else {
+                    throw new Error('Cannot access iframe');
+                }
+            } catch (error) {
+                // This is good! It means headers are blocking the iframe
+                console.log('%c  ✅ ATTACK BLOCKED!', 'color: green; font-weight: bold;');
+                console.log('  🛡️  Security headers detected');
+                console.log('  🔒  X-Frame-Options: DENY');
+                console.log('  🔒  CSP: frame-ancestors \'none\'');
+                console.log('  ✅  User is protected!');
+                console.log('');
+                console.log('%c🎉 DEFENSE SUCCESSFUL!', 'color: green; font-size: 16px; font-weight: bold;');
+                console.log('  The middleware blocked the iframe from loading.');
+                console.log('  Clickjacking attack prevented!');
+                
+                document.getElementById('statusMessage').innerHTML = 
+                    '<span class="status-blocked">✅ ATTACK BLOCKED</span><br>Security headers prevented iframe load!';
+                document.getElementById('headersStatus').innerHTML = 
+                    '<span class="status-blocked">🛡️ Protected by X-Frame-Options + CSP</span>';
+                
+                // Show error overlay
+                document.getElementById('iframeError').classList.add('show');
+            }
+            
+            console.log('');
+            console.log('%c════════════════════════════════════════', 'color: red;');
+        }
+
+        // Handle iframe error
+        function handleIframeError() {
+            console.log('%c✅ Iframe failed to load (GOOD!)', 'color: green; font-weight: bold;');
+            document.getElementById('statusMessage').innerHTML = 
+                '<span class="status-blocked">✅ ATTACK BLOCKED</span><br>Iframe failed to load!';
+            document.getElementById('headersStatus').innerHTML = 
+                '<span class="status-blocked">🛡️ Protected by security headers</span>';
+            
+            document.getElementById('iframeError').classList.add('show');
+        }
+
+        // Toggle iframe visibility (for demo purposes)
+        let iframeVisible = false;
+        function toggleIframeVisibility() {
+            const iframe = document.getElementById('attackIframe');
+            iframeVisible = !iframeVisible;
+            
+            if (iframeVisible) {
+                iframe.style.opacity = '0.8';
+                iframe.style.border = '3px solid red';
+                console.log('%c👁️ Iframe visibility: VISIBLE (opacity: 0.8)', 'color: orange;');
+            } else {
+                iframe.style.opacity = '0';
+                iframe.style.border = 'none';
+                console.log('%c👁️ Iframe visibility: HIDDEN (opacity: 0)', 'color: orange;');
+            }
+        }
+
+        // Log initial state
+        console.log('%c🎬 CLICKJACKING ATTACK DEMO', 'color: purple; font-size: 24px; font-weight: bold;');
+        console.log('%cInitializing attack scenario...', 'color: gray;');
+        console.log('');
+        console.log('%c💡 HOW IT WORKS:', 'color: blue; font-weight: bold;');
+        console.log('1. User sees attractive "NHẬN VOUCHER 500K" button');
+        console.log('2. Invisible iframe (opacity: 0) is positioned on top');
+        console.log('3. When user clicks the visible button...');
+        console.log('4. They actually click a button INSIDE the hidden iframe');
+        console.log('5. Result: Unintended action (e.g., transfer money, change settings)');
+        console.log('');
+        console.log('%c🛡️ DEFENSE:', 'color: green; font-weight: bold;');
+        console.log('X-Frame-Options: DENY - Blocks all iframe embedding');
+        console.log('CSP frame-ancestors \'none\' - Modern standard protection');
+        console.log('');
+        console.log('%c📝 TIP: Click "Hiện/Ẩn Iframe" button to see the hidden iframe!', 'color: orange; font-weight: bold;');
+        console.log('');
+    </script>
+</body>
+</html>

@@ -6,7 +6,7 @@ import './InfectedPage.css';
 import InjectedClickjackAttack from '../../components/InjectedClickjackAttack';
 
 const InfectedPage = () => {
-  const [attackEnabled, setAttackEnabled] = useState(true);
+  const [attackEnabled, setAttackEnabled] = useState(false); // Ban đầu không tấn công
   const [showExplanation, setShowExplanation] = useState(true);
 
   return (

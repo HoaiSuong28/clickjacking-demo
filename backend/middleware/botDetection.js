@@ -14,19 +14,36 @@ const { alertBotAttack } = require('../utils/alertSystem');
 const visitTracking = new Map();
 const botBlacklist = new Set();
 
+// 🔥 XÓA BLACKLIST KHI KHỞI ĐỘNG (Tránh IP bị block vĩnh viễn)
+setTimeout(() => {
+  if (botBlacklist.size > 0) {
+    console.log(`🧹 Clearing ${botBlacklist.size} IPs from blacklist...`);
+    botBlacklist.clear();
+    visitTracking.clear();
+  }
+}, 2000); // Xóa sau 2 giây khởi động
+
 // Configuration
 const CONFIG = {
-  MIN_TIME_HUMAN: 1000,        // Người thật ít nhất mất 1 giây
-  MAX_REQUESTS_PER_MINUTE: 20, // Tối đa 20 requests/phút
-  PATTERN_THRESHOLD: 5,        // Nếu 5 requests có timing giống nhau -> bot
+  MIN_TIME_HUMAN: 500,         // Người thật ít nhất mất 0.5 giây (tăng độ nhạy)
+  MAX_REQUESTS_PER_MINUTE: 5,  // Tối đa 5 requests/phút (chặn nhanh hơn)
+  PATTERN_THRESHOLD: 3,        // Nếu 3 requests có timing giống nhau -> bot
   TIMING_TOLERANCE: 100,       // Sai số cho phép (ms)
   BLACKLIST_DURATION: 300000   // Block 5 phút
 };
 
 /**
  * Middleware track thời gian page load
+ * 🎯 FIX: Chỉ track page load cho non-API GET requests
  */
 const trackPageVisit = (req, res, next) => {
+  // Chỉ track page load cho các request GET không phải là API
+  // Điều này ngăn việc các API call liên tiếp reset pageLoadTime
+  const isApiRequest = req.path.startsWith('/api/');
+  if (req.method !== 'GET' || isApiRequest) {
+    return next();
+  }
+
   // 🎯 Ưu tiên lấy IP từ custom header (để test bot với nhiều IP khác nhau)
   const clientIP = req.headers['x-client-ip'] || 
                    req.headers['x-forwarded-for']?.split(',')[0] || 
@@ -51,9 +68,11 @@ const trackPageVisit = (req, res, next) => {
 
 /**
  * Middleware phát hiện bot dựa trên timing
+ * 🔥 CHỈ áp dụng cho /demo-attack endpoint
+ * ✅ Các route user bình thường KHÔNG qua middleware này
  */
 const detectBot = (req, res, next) => {
-  // 🎯 Ưu tiên lấy IP từ custom header (để test bot với nhiều IP khác nhau)
+  // 🎯 Lấy IP
   const clientIP = req.headers['x-client-ip'] || 
                    req.headers['x-forwarded-for']?.split(',')[0] || 
                    req.ip || 
@@ -61,7 +80,7 @@ const detectBot = (req, res, next) => {
   
   const now = Date.now();
   
-  // Kiểm tra blacklist
+  // 🎯 Kiểm tra blacklist
   if (botBlacklist.has(clientIP)) {
     logger.botBlocked(clientIP, 'IP đã bị chặn trước đó', {
       endpoint: req.path,
@@ -259,9 +278,21 @@ function getBotStats() {
   };
 }
 
+/**
+ * 🔥 Xóa blacklist thủ công (dành cho admin hoặc khi cần reset)
+ */
+function clearBlacklist() {
+  const count = botBlacklist.size;
+  botBlacklist.clear();
+  visitTracking.clear();
+  logger.info(`🧹 Manually cleared ${count} IPs from blacklist`);
+  return { cleared: count };
+}
+
 module.exports = {
   trackPageVisit,
   detectBot,
   getBotStats,
+  clearBlacklist, // 🆕 Export để có thể gọi từ route
   CONFIG
 };

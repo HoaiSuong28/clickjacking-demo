@@ -12,6 +12,13 @@ const {
 
 // Import middleware
 const getCartOwner = require('../../middleware/cartOwner');
+const checkNotAdmin = (req, res, next) => {
+    const user = req.user || req.auth;
+    if (user && user.role === 'admin') {
+        return res.status(403).json({ success: false, message: 'Admin không được phép mua hàng. Chỉ quản lý!' });
+    }
+    next();
+};
 
 // Import validator
 const { addItemToCartSchema, updateItemQuantitySchema } = require('../../validators/cart.validator');
@@ -23,7 +30,8 @@ const validate = (schema) => (req, res, next) => {
     next();
 };
 
-// Áp dụng middleware getCartOwner cho tất cả các route trong file này
+// Áp dụng middleware getCartOwner và chặn admin
+router.use(checkNotAdmin);
 router.use(getCartOwner);
 
 // Định nghĩa các routes

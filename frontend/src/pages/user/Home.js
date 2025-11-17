@@ -393,7 +393,7 @@ export default function Home() {
                       onClick={() => navigate(`/product/${p.ProductID}`)}
                     >
                       <img
-                        src={`${API_BASE_URL}${p.DefaultImage}`}
+                        src={p.DefaultImage ? `${API_BASE_URL}${p.DefaultImage}` : PLACEHOLDER_IMG}
                         alt={p.Name}
                         onError={(e) => (e.currentTarget.src = PLACEHOLDER_IMG)}
                       />

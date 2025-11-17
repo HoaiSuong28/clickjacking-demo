@@ -8,11 +8,14 @@ const {
     getBlogById 
 } = require('../../controllers/blog.controller');
 
-// Định nghĩa các routes
+// Import bot detection
+const { detectBot } = require('../../middleware/botDetection');
+
+// Định nghĩa các routes (có bot detection)
 // GET /api/blogs -> Lấy danh sách blog
-router.get('/', getAllBlogs);
+router.get('/', detectBot, getAllBlogs);
 
 // GET /api/blogs/:id -> Lấy chi tiết một blog
-router.get('/:id', getBlogById);
+router.get('/:id', detectBot, getBlogById);
 
 module.exports = router;

@@ -99,13 +99,27 @@ exports.getAllProducts = async (req, res) => {
                     'DiscountedPrice'
                 ]
             },
-            include: [{
-                model: db.Category,
-                as: 'category',
-                attributes: ['Name', 'TargetGroup'], 
-                where: whereCategory,
-                required: Object.keys(whereCategory).length > 0 || !!categories // Bắt buộc join nếu có filter category hoặc voucher categories
-            }],
+            include: [
+                {
+                    model: db.Category,
+                    as: 'category',
+                    attributes: ['Name', 'TargetGroup'], 
+                    where: whereCategory,
+                    required: Object.keys(whereCategory).length > 0 || !!categories
+                },
+                {
+                    model: db.ProductVariant,
+                    as: 'variants',
+                    where: { IsActive: true },
+                    required: false,
+                    include: [{
+                        model: db.ProductImage,
+                        as: 'images',
+                        attributes: ['ImageURL', 'IsDefault'],
+                        required: false
+                    }]
+                }
+            ],
             where: whereProduct,
             order,
             limit,

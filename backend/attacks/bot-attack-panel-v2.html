@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Bot Attack Panel V2 - Chi tiết xâm nhập</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0e27;
+            color: #00ff00;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #00ff00;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #00ff00;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: #1a1f3a;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .panel h2 {
+            color: #00ff00;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #00ff00;
+            padding-bottom: 8px;
+        }
+
+        .server-info {
+            background: #0d1120;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffaa00;
+        }
+
+        .server-info p {
+            margin: 5px 0;
+            color: #ffaa00;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            color: #00ff00;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            background: #0d1120;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-attack {
+            background: linear-gradient(45deg, #ff0000, #ff6600);
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+
+        .btn-attack:hover {
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+            transform: scale(1.02);
+        }
+
+        .btn-voucher {
+            background: linear-gradient(45deg, #ffaa00, #ffdd00);
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 170, 0, 0.5);
+        }
+
+        .btn-stop {
+            background: #555;
+            color: white;
+        }
+
+        .log-container {
+            background: #0d1120;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            height: 600px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .log-entry {
+            padding: 5px;
+            margin-bottom: 3px;
+            border-left: 3px solid transparent;
+            padding-left: 10px;
+        }
+
+        .log-entry.system {
+            color: #00ffff;
+            border-left-color: #00ffff;
+        }
+
+        .log-entry.attack {
+            color: #ff0000;
+            border-left-color: #ff0000;
+            font-weight: bold;
+        }
+
+        .log-entry.success {
+            color: #00ff00;
+            border-left-color: #00ff00;
+        }
+
+        .log-entry.blocked {
+            color: #ff6600;
+            border-left-color: #ff6600;
+            font-weight: bold;
+            animation: flash 1s;
+        }
+
+        .log-entry.error {
+            color: #ff0000;
+            border-left-color: #ff0000;
+        }
+
+        @keyframes flash {
+            0%, 100% { background: transparent; }
+            50% { background: rgba(255, 102, 0, 0.2); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #0d1120;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #00ff00;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            color: #00ff00;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #888;
+            font-size: 12px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0d1120;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00ff00;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 BOT ATTACK CONTROL PANEL V2 - DETAILED INFILTRATION</h1>
+
+        <!-- Server Info -->
+        <div class="server-info">
+            <p>🎯 <strong>TARGET SERVER:</strong> http://localhost:5000</p>
+            <p>🔌 <strong>PORT:</strong> 5000 (HTTP)</p>
+            <p>📡 <strong>PROTOCOL:</strong> HTTP/1.1</p>
+            <p>🌎 <strong>ENDPOINTS:</strong> /api/demo-attack/chat, /api/auth/register, /api/auth/login, /api/products</p>
+            <p>🛡️ <strong>SECURITY MONITOR:</strong> <a href="http://localhost:3000/security-monitor" target="_blank" style="color:#00ffff;">http://localhost:3000/security-monitor</a></p>
+        </div>
+
+        <div class="grid">
+            <!-- Attack Control -->
+            <div class="panel">
+                <h2>💥 ATTACK CONFIGURATION</h2>
+                
+                <div class="form-group">
+                    <label>Attack Type:</label>
+                    <select id="attackType" onchange="updateAttackInfo()">
+                        <option value="product">🔓 Product Scraping (Public - Không cần login)</option>
+                        <option value="voucher">🎫 Voucher Hunter (Public - Không cần login)</option>
+                        <option value="blog">📰 Blog Spam (Public - Không cần login)</option>
+                        <option value="register">👤 Account Flooding (Tự tạo tài khoản spam)</option>
+                        <option value="brute">🔐 Brute Force Login (Dò mật khẩu)</option>
+                    </select>
+                </div>
+
+                <div id="attackInfo" style="background:#0d1120;padding:15px;border-radius:8px;margin-bottom:15px;border-left:4px solid #00ffff;">
+                    <p style="color:#00ffff;margin:5px 0;font-size:13px;"><strong>🎯 Target:</strong> /api/products</p>
+                    <p style="color:#ffaa00;margin:5px 0;font-size:13px;"><strong>🔓 Auth:</strong> Không cần đăng nhập (Public endpoint)</p>
+                    <p style="color:#00ff00;margin:5px 0;font-size:13px;"><strong>💡 Cách thức:</strong> Bot spam liên tục endpoint công khai</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Total Requests:</label>
+                    <input type="number" id="totalRequests" value="100" min="1" max="1000">
+                </div>
+
+                <div class="form-group">
+                    <label>Delay (ms):</label>
+                    <input type="number" id="requestDelay" value="50" min="0" max="5000">
+                </div>
+
+                <button class="btn-attack" onclick="startAttack()">🚀 LAUNCH ATTACK</button>
+                <button class="btn-stop" onclick="stopAttack()">🛑 STOP ATTACK</button>
+            </div>
+
+            <!-- Statistics -->
+            <div class="panel">
+                <h2>📊 REAL-TIME STATISTICS</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 id="totalSent">0</h3>
+                        <p>Sent</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="totalSuccess">0</h3>
+                        <p>Success</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="totalBlocked">0</h3>
+                        <p>Blocked</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="totalErrors">0</h3>
+                        <p>Errors</p>
+                    </div>
+                </div>
+
+                <div style="background:#0d1120;padding:15px;border-radius:8px;margin-top:10px;">
+                    <p style="color:#ffaa00;"><strong>⚠️ ATTACK STATUS:</strong> <span id="attackStatus">IDLE</span></p>
+                    <p style="color:#00ffff;margin-top:5px;"><strong>📡 CONNECTION:</strong> <span id="connectionStatus">DISCONNECTED</span></p>
+                    <p style="color:#ff0000;margin-top:5px;"><strong>🛡️ DETECTION:</strong> <span id="detectionStatus">NOT DETECTED</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Console Logs -->
+        <div class="panel">
+            <h2>📝 DETAILED ATTACK LOGS & INFILTRATION STEPS</h2>
+            <div class="log-container" id="logContainer">
+                <div class="log-entry system">[SYSTEM] Bot Control Panel V2 initialized</div>
+                <div class="log-entry system">[SYSTEM] Ready to launch attacks...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        const SECURITY_MONITOR = 'http://localhost:3000/security-monitor';
+        
+        let attackRunning = false;
+        let stats = {
+            sent: 0,
+            success: 0,
+            blocked: 0,
+            errors: 0
+        };
+
+        // Update attack info based on selected type
+        function updateAttackInfo() {
+            const type = document.getElementById('attackType').value;
+            const info = document.getElementById('attackInfo');
+            
+            const configs = {
+                'product': {
+                    target: '/api/products?limit=1',
+                    auth: 'Không cần đăng nhập (Public endpoint)',
+                    method: 'Bot spam liên tục endpoint công khai để scrape data'
+                },
+                'voucher': {
+                    target: '/api/demo-attack/chat',
+                    auth: 'Không cần đăng nhập (Public chatbot)',
+                    method: 'Bot tự động lấy voucher từ chatbot không giới hạn'
+                },
+                'blog': {
+                    target: '/api/blogs',
+                    auth: 'Không cần đăng nhập (Public blog)',
+                    method: 'Bot spam requests để làm quá tải server'
+                },
+                'register': {
+                    target: '/api/auth/register',
+                    auth: 'Tự tạo tài khoản (bot1@temp.com, bot2@...)',
+                    method: 'Bot tự động tạo hàng trăm tài khoản giả'
+                },
+                'brute': {
+                    target: '/api/auth/login',
+                    auth: 'Brute force (thử nhiều email/password)',
+                    method: 'Bot dò mật khẩu: admin/123456, test/password...'
+                }
+            };
+            
+            const config = configs[type];
+            info.innerHTML = `
+                <p style="color:#00ffff;margin:5px 0;font-size:13px;"><strong>🎯 Target:</strong> ${config.target}</p>
+                <p style="color:#ffaa00;margin:5px 0;font-size:13px;"><strong>🔓 Auth:</strong> ${config.auth}</p>
+                <p style="color:#00ff00;margin:5px 0;font-size:13px;"><strong>💡 Cách thức:</strong> ${config.method}</p>
+            `;
+        }
+
+        // Add log entry
+        function addLog(type, message) {
+            const container = document.getElementById('logContainer');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${timestamp}] ${message}`;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+
+            // Keep only last 200 logs
+            while (container.children.length > 200) {
+                container.removeChild(container.firstChild);
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalSent').textContent = stats.sent;
+            document.getElementById('totalSuccess').textContent = stats.success;
+            document.getElementById('totalBlocked').textContent = stats.blocked;
+            document.getElementById('totalErrors').textContent = stats.errors;
+        }
+
+        // Update status
+        function updateStatus(attack, connection, detection) {
+            document.getElementById('attackStatus').textContent = attack;
+            document.getElementById('connectionStatus').textContent = connection;
+            document.getElementById('detectionStatus').textContent = detection;
+        }
+
+        // Phase 1: Reconnaissance (không cần login)
+        async function reconnaissance() {
+            addLog('system', `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+            addLog('attack', `🔍 PHASE 1: RECONNAISSANCE`);
+            addLog('system', `🔌 Connecting to target server...`);
+            addLog('system', `🌐 Target: http://localhost:5000`);
+            addLog('system', `📡 Port: 5000 | Protocol: HTTP/1.1`);
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+            addLog('success', `✅ TCP Connection established on port 5000`);
+            
+            await new Promise(resolve => setTimeout(resolve, 300));
+            addLog('success', `✅ HTTP handshake completed`);
+            
+            addLog('system', `🕵️ Scanning for vulnerable endpoints...`);
+            await new Promise(resolve => setTimeout(resolve, 400));
+            
+            addLog('success', `✅ Found public endpoint: /api/products (NO AUTH REQUIRED)`);
+            addLog('success', `✅ Found public endpoint: /api/demo-attack/chat (NO AUTH REQUIRED)`);
+            addLog('success', `✅ Found public endpoint: /api/auth/register (NO AUTH REQUIRED)`);
+            addLog('success', `✅ Found public endpoint: /api/auth/login (NO AUTH REQUIRED)`);
+            addLog('success', `✅ Security bypass: No authentication needed for these endpoints`);
+            
+            updateStatus('RECONNAISSANCE', 'CONNECTED', 'SCANNING');
+        }
+
+        // Send single request
+        async function sendRequest(url, method, data, requestNum, attackType) {
+            stats.sent++;
+            updateStats();
+
+            addLog('system', `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+            addLog('attack', `🚀 REQUEST #${requestNum}`);
+            addLog('system', `🎯 Target: ${url}`);
+            addLog('system', `🔓 Auth: KHÔNG CẦN (Public endpoint)`);
+            
+            if (data && method !== 'GET') {
+                addLog('system', `📦 Payload: ${JSON.stringify(data).substring(0, 50)}...`);
+            }
+
+            try {
+                const startTime = Date.now();
+                
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                };
+                
+                if (data && method !== 'GET') {
+                    options.body = JSON.stringify(data);
+                }
+                
+                const response = await fetch(url, options);
+
+                const duration = Date.now() - startTime;
+                const status = response.status;
+
+                addLog('system', `📡 Response received in ${duration}ms`);
+                addLog('system', `📊 HTTP Status: ${status}`);
+
+                if (status === 200 || status === 201) {
+                    stats.success++;
+                    addLog('success', `✅ REQUEST #${requestNum}: SUCCESS`);
+                    addLog('success', `💰 Action completed successfully`);
+                    updateStatus('ATTACKING', 'CONNECTED', 'NOT DETECTED');
+                } else if (status === 403) {
+                    stats.blocked++;
+                    addLog('blocked', `🚫 REQUEST #${requestNum}: BLOCKED BY SECURITY!`);
+                    addLog('blocked', `🛡️ Bot detection triggered!`);
+                    addLog('blocked', `⚠️ IP may be blacklisted`);
+                    addLog('blocked', `📍 Check Security Monitor: ${SECURITY_MONITOR}`);
+                    updateStatus('DETECTED', 'BLOCKED', 'BOT DETECTED!');
+                } else if (status === 429) {
+                    stats.blocked++;
+                    addLog('blocked', `🚫 REQUEST #${requestNum}: RATE LIMITED`);
+                    addLog('blocked', `⏱️ Too many requests from this IP`);
+                    updateStatus('RATE LIMITED', 'THROTTLED', 'SUSPICIOUS ACTIVITY');
+                } else {
+                    stats.errors++;
+                    addLog('error', `❌ REQUEST #${requestNum}: ERROR ${status}`);
+                }
+
+                updateStats();
+                return status;
+
+            } catch (error) {
+                stats.errors++;
+                addLog('error', `❌ REQUEST #${requestNum}: NETWORK ERROR`);
+                addLog('error', `📛 ${error.message}`);
+                updateStats();
+                return null;
+            }
+        }
+
+        // Start Attack
+        async function startAttack() {
+            if (attackRunning) {
+                addLog('error', '⚠️ Attack already running!');
+                return;
+            }
+
+            attackRunning = true;
+            stats = { sent: 0, success: 0, blocked: 0, errors: 0 };
+            updateStats();
+
+            const attackType = document.getElementById('attackType').value;
+            const totalRequests = parseInt(document.getElementById('totalRequests').value);
+            const delay = parseInt(document.getElementById('requestDelay').value);
+
+            addLog('attack', `╔═══════════════════════════════════════╗`);
+            addLog('attack', `║  BOT ATTACK INITIATED                 ║`);
+            addLog('attack', `╚═══════════════════════════════════════╝`);
+            addLog('system', `📅 Time: ${new Date().toLocaleString()}`);
+            addLog('system', `🎯 Attack Type: ${attackType.toUpperCase()}`);
+            addLog('system', `📊 Total Requests: ${totalRequests}`);
+            addLog('system', `⏱️ Delay: ${delay}ms`);
+
+            updateStatus('INITIALIZING', 'CONNECTING', 'SCANNING');
+
+            // Phase 1: Reconnaissance (không cần login)
+            await reconnaissance();
+
+            // Phase 2: Attack
+            addLog('system', `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+            addLog('attack', `💥 PHASE 2: ATTACK EXECUTION`);
+            addLog('attack', `⚡ Launching ${totalRequests} requests...`);
+            addLog('system', `⏳ Estimated duration: ${(totalRequests * delay / 1000).toFixed(1)}s`);
+
+            updateStatus('ATTACKING', 'CONNECTED', 'INFILTRATING');
+
+            // Chọn endpoint và method dựa trên attack type
+            let endpoint, method, payload;
+            
+            switch(attackType) {
+                case 'product':
+                    endpoint = `${API_BASE}/products?limit=1`;
+                    method = 'GET';
+                    payload = null;
+                    addLog('attack', `🎯 Target: Spam public product listing`);
+                    break;
+                case 'voucher':
+                    endpoint = `${API_BASE}/demo-attack/chat`;
+                    method = 'POST';
+                    payload = { message: 'LẤY VOUCHER' };
+                    addLog('attack', `🎯 Target: Auto-collect unlimited vouchers`);
+                    break;
+                case 'blog':
+                    endpoint = `${API_BASE}/blogs`;
+                    method = 'GET';
+                    payload = null;
+                    addLog('attack', `🎯 Target: Spam blog listing to overload server`);
+                    break;
+                case 'register':
+                    endpoint = `${API_BASE}/auth/register`;
+                    method = 'POST';
+                    payload = null; // Will generate fake accounts
+                    addLog('attack', `🎯 Target: Mass account creation (bot1@temp.com, bot2@...)`);
+                    break;
+                case 'brute':
+                    endpoint = `${API_BASE}/auth/login`;
+                    method = 'POST';
+                    payload = null; // Will try different credentials
+                    addLog('attack', `🎯 Target: Brute force password attack`);
+                    break;
+            }
+
+            // Send requests
+            for (let i = 1; i <= totalRequests && attackRunning; i++) {
+                // Generate dynamic payload for register/brute attacks
+                if (attackType === 'register') {
+                    payload = {
+                        username: `bot${i}`,
+                        email: `bot${i}@temp-mail.com`,
+                        password: `BotPass${i}@123`
+                    };
+                } else if (attackType === 'brute') {
+                    const passwords = ['123456', 'password', 'admin123', 'qwerty', '12345678'];
+                    const emails = ['admin@site.com', 'test@example.com', 'user@demo.com'];
+                    payload = {
+                        email: emails[i % emails.length],
+                        password: passwords[i % passwords.length]
+                    };
+                }
+                
+                await sendRequest(endpoint, method, payload, i, attackType);
+                
+                if (i < totalRequests && attackRunning) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+
+                // Show progress every 10 requests
+                if (i % 10 === 0) {
+                    const progress = (i / totalRequests * 100).toFixed(0);
+                    addLog('system', `📈 Progress: ${progress}% (${i}/${totalRequests})`);
+                }
+            }
+
+            // Summary
+            if (attackRunning) {
+                addLog('system', `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+                addLog('attack', `📊 ATTACK COMPLETED`);
+                addLog('system', `✅ Success: ${stats.success}`);
+                addLog('system', `🚫 Blocked: ${stats.blocked}`);
+                addLog('system', `❌ Errors: ${stats.errors}`);
+                addLog('system', `📈 Success Rate: ${(stats.success / stats.sent * 100).toFixed(1)}%`);
+                addLog('system', `📉 Block Rate: ${(stats.blocked / stats.sent * 100).toFixed(1)}%`);
+                addLog('system', `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+                addLog('success', `✅ Check Security Monitor for detailed logs:`);
+                addLog('success', `🔗 ${SECURITY_MONITOR}`);
+
+                updateStatus('COMPLETED', 'DISCONNECTED', stats.blocked > 0 ? 'DETECTED' : 'NOT DETECTED');
+            }
+
+            attackRunning = false;
+        }
+
+        // Stop Attack
+        function stopAttack() {
+            if (!attackRunning) {
+                addLog('error', '⚠️ No attack running');
+                return;
+            }
+
+            attackRunning = false;
+            addLog('error', '🛑 ATTACK STOPPED BY USER');
+            addLog('system', `📊 Partial results: ${stats.sent} requests sent`);
+            updateStatus('STOPPED', 'DISCONNECTED', 'ABORTED');
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            addLog('system', `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+            addLog('success', `✅ Bot Control Panel V2 ready`);
+            addLog('system', `🎯 Target server: http://localhost:5000`);
+            addLog('system', `🛡️ Security monitor: ${SECURITY_MONITOR}`);
+            addLog('system', `💡 Strategy: Tấn công các PUBLIC ENDPOINTS (không cần đăng nhập)`);
+            addLog('system', `⏳ Awaiting attack commands...`);
+            updateStatus('IDLE', 'DISCONNECTED', 'NOT DETECTED');
+            updateAttackInfo();
+        });
+    </script>
+</body>
+</html>
