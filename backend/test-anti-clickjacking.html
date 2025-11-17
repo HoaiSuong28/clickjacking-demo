@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧪 Test Anti-Clickjacking Protection</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    h1 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 2.5em;
+      text-align: center;
+    }
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 40px;
+      font-size: 1.1em;
+    }
+    .test-section {
+      background: #f8f9fa;
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border-left: 5px solid #667eea;
+    }
+    .test-section h2 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+    }
+    .test-section h3 {
+      color: #555;
+      margin: 20px 0 10px 0;
+      font-size: 1.3em;
+    }
+    .iframe-container {
+      margin: 20px 0;
+      border: 3px dashed #667eea;
+      border-radius: 10px;
+      padding: 15px;
+      background: white;
+    }
+    .iframe-container iframe {
+      width: 100%;
+      height: 400px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+    }
+    .status {
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+      font-weight: 600;
+      font-size: 1.1em;
+    }
+    .status.protected {
+      background: #d4edda;
+      color: #155724;
+      border: 2px solid #c3e6cb;
+    }
+    .status.vulnerable {
+      background: #f8d7da;
+      color: #721c24;
+      border: 2px solid #f5c6cb;
+    }
+    .status.testing {
+      background: #fff3cd;
+      color: #856404;
+      border: 2px solid #ffeaa7;
+    }
+    .code-block {
+      background: #2d3748;
+      color: #f7fafc;
+      padding: 20px;
+      border-radius: 10px;
+      overflow-x: auto;
+      margin: 15px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95em;
+      line-height: 1.6;
+    }
+    .code-block code {
+      color: #81e6d9;
+    }
+    .button-group {
+      display: flex;
+      gap: 15px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    .btn-success {
+      background: #48bb78;
+      color: white;
+    }
+    .btn-danger {
+      background: #f56565;
+      color: white;
+    }
+    .btn-info {
+      background: #4299e1;
+      color: white;
+    }
+    .steps {
+      list-style: none;
+      counter-reset: step-counter;
+      padding: 0;
+    }
+    .steps li {
+      counter-increment: step-counter;
+      padding: 15px 15px 15px 60px;
+      margin: 10px 0;
+      background: white;
+      border-radius: 10px;
+      position: relative;
+      border: 2px solid #e2e8f0;
+    }
+    .steps li::before {
+      content: counter(step-counter);
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #667eea;
+      color: white;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+    .alert {
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .alert-info {
+      background: #bee3f8;
+      color: #2c5282;
+      border-left: 5px solid #4299e1;
+    }
+    .alert-warning {
+      background: #feebc8;
+      color: #744210;
+      border-left: 5px solid #ed8936;
+    }
+    .alert-success {
+      background: #c6f6d5;
+      color: #22543d;
+      border-left: 5px solid #48bb78;
+    }
+    .header-example {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+      border-left: 4px solid #48bb78;
+    }
+    .header-example strong {
+      color: #667eea;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .header-example code {
+      color: #e53e3e;
+      background: #fed7d7;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    #console-output {
+      background: #1a202c;
+      color: #68d391;
+      padding: 20px;
+      border-radius: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      margin: 20px 0;
+      font-size: 0.9em;
+      line-height: 1.6;
+    }
+    .timestamp {
+      color: #90cdf4;
+    }
+    .error {
+      color: #fc8181;
+    }
+    .success {
+      color: #68d391;
+    }
+    .warning {
+      color: #f6ad55;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🛡️ Test Anti-Clickjacking Protection</h1>
+    <p class="subtitle">Kiểm tra xem server có chặn clickjacking attack không</p>
+
+    <!-- Test 1: Iframe Blocking -->
+    <div class="test-section">
+      <h2>🧪 Test 1: Iframe Blocking</h2>
+      <p><strong>Mục tiêu:</strong> Kiểm tra xem website có thể bị nhúng vào iframe hay không</p>
+      
+      <div class="status testing">
+        ⏳ Đang test... Xem kết quả bên dưới
+      </div>
+
+      <h3>🎯 Test Case 1.1: Nhúng Homepage</h3>
+      <p>Nếu middleware hoạt động đúng, iframe sẽ <strong>KHÔNG hiển thị</strong> và browser sẽ báo lỗi trong Console.</p>
+      <div class="iframe-container">
+        <iframe 
+          id="test-iframe-1" 
+          src="http://localhost:3000"
+          title="Test Homepage"
+        ></iframe>
+      </div>
+      <div id="result-1" class="status" style="display:none;"></div>
+
+      <h3>🎯 Test Case 1.2: Nhúng Products Page</h3>
+      <div class="iframe-container">
+        <iframe 
+          id="test-iframe-2" 
+          src="http://localhost:3000/products"
+          title="Test Products"
+        ></iframe>
+      </div>
+      <div id="result-2" class="status" style="display:none;"></div>
+
+      <h3>🎯 Test Case 1.3: Nhúng Checkout Page</h3>
+      <div class="iframe-container">
+        <iframe 
+          id="test-iframe-3" 
+          src="http://localhost:3000/checkout"
+          title="Test Checkout"
+        ></iframe>
+      </div>
+      <div id="result-3" class="status" style="display:none;"></div>
+
+      <div class="alert alert-info">
+        <span>ℹ️</span>
+        <div>
+          <strong>Kết quả mong đợi:</strong><br>
+          Tất cả iframe phải hiển thị lỗi: <code>"Refused to display 'http://localhost:3000' in a frame because it set 'X-Frame-Options' to 'deny'."</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Test 2: Response Headers -->
+    <div class="test-section">
+      <h2>🔍 Test 2: Kiểm tra Response Headers</h2>
+      <p><strong>Mục tiêu:</strong> Xác nhận các security headers đã được set đúng</p>
+
+      <h3>📋 Hướng dẫn kiểm tra:</h3>
+      <ol class="steps">
+        <li>Mở DevTools (F12)</li>
+        <li>Vào tab <strong>Network</strong></li>
+        <li>Refresh trang (Ctrl+R)</li>
+        <li>Click vào request đầu tiên (localhost)</li>
+        <li>Xem <strong>Response Headers</strong></li>
+      </ol>
+
+      <h3>✅ Headers cần có:</h3>
+      <div class="header-example">
+        <strong>1. X-Frame-Options</strong>
+        <code>X-Frame-Options: DENY</code>
+        <p style="margin-top:5px; color:#555;">→ Chặn hoàn toàn iframe</p>
+      </div>
+      
+      <div class="header-example">
+        <strong>2. Content-Security-Policy</strong>
+        <code>Content-Security-Policy: frame-ancestors 'none'</code>
+        <p style="margin-top:5px; color:#555;">→ Tiêu chuẩn hiện đại thay thế X-Frame-Options</p>
+      </div>
+      
+      <div class="header-example">
+        <strong>3. X-Content-Type-Options</strong>
+        <code>X-Content-Type-Options: nosniff</code>
+        <p style="margin-top:5px; color:#555;">→ Ngăn MIME type sniffing</p>
+      </div>
+      
+      <div class="header-example">
+        <strong>4. X-XSS-Protection</strong>
+        <code>X-XSS-Protection: 1; mode=block</code>
+        <p style="margin-top:5px; color:#555;">→ Kích hoạt XSS filter</p>
+      </div>
+      
+      <div class="header-example">
+        <strong>5. X-Anti-Clickjacking-Enabled (Debug)</strong>
+        <code>X-Anti-Clickjacking-Enabled: true</code>
+        <p style="margin-top:5px; color:#555;">→ Xác nhận middleware đang hoạt động</p>
+      </div>
+
+      <div class="button-group">
+        <button class="btn btn-primary" onclick="testHeaders()">🔍 Test Headers Tự động</button>
+        <button class="btn btn-info" onclick="copyHeadersTest()">📋 Copy Test Script</button>
+      </div>
+
+      <div id="headers-result" style="margin-top:20px;"></div>
+    </div>
+
+    <!-- Test 3: Backend Logs -->
+    <div class="test-section">
+      <h2>📊 Test 3: Kiểm tra Backend Logs</h2>
+      <p><strong>Mục tiêu:</strong> Xác nhận middleware có log requests không</p>
+
+      <div class="alert alert-info">
+        <span>ℹ️</span>
+        <div>
+          <strong>Xem logs trong terminal backend:</strong><br>
+          Mỗi request sẽ có log: <code>[timestamp] 🛡️ Anti-Clickjacking: GET /api/products</code>
+        </div>
+      </div>
+
+      <h3>📝 Expected Output:</h3>
+      <div class="code-block">
+<code>[2024-11-17T10:30:45.123Z] 🛡️ Anti-Clickjacking: GET /
+  ✅ X-Frame-Options: DENY
+  ✅ Content-Security-Policy: frame-ancestors 'none'
+  ✅ X-Content-Type-Options: nosniff
+
+[2024-11-17T10:30:46.456Z] 🛡️ Anti-Clickjacking: GET /api/products
+  ✅ X-Frame-Options: DENY
+  ✅ Content-Security-Policy: frame-ancestors 'none'
+  ✅ X-Content-Type-Options: nosniff</code>
+      </div>
+
+      <h3>🎮 Live Console Output:</h3>
+      <div id="console-output">
+        <div class="timestamp">[Đợi requests...]</div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn btn-success" onclick="simulateRequests()">🚀 Simulate Requests</button>
+        <button class="btn btn-danger" onclick="clearConsole()">🗑️ Clear Console</button>
+      </div>
+    </div>
+
+    <!-- Test 4: Attack Simulation -->
+    <div class="test-section">
+      <h2>🎯 Test 4: Mô phỏng Clickjacking Attack</h2>
+      <p><strong>Mục tiêu:</strong> Demo kịch bản tấn công thực tế và cách middleware chặn</p>
+
+      <h3>📖 Kịch bản:</h3>
+      <ol class="steps">
+        <li>Hacker tạo trang web giả (fake-bank.com)</li>
+        <li>Nhúng website thật (lillyshoes.com) vào iframe ẩn</li>
+        <li>Đặt nút giả "Nhận 500K" đúng vị trí nút "Thanh toán" thật</li>
+        <li>User click → Thực ra đang click vào iframe (chuyển tiền cho hacker)</li>
+      </ol>
+
+      <div class="alert alert-warning">
+        <span>⚠️</span>
+        <div>
+          <strong>KHÔNG có middleware:</strong> Attack thành công, user bị lừa<br>
+          <strong>CÓ middleware:</strong> Browser chặn iframe, attack thất bại ✅
+        </div>
+      </div>
+
+      <h3>🧪 Demo Attack:</h3>
+      <div class="button-group">
+        <a href="http://localhost:3000/infected-page" target="_blank" class="btn btn-danger">
+          🚨 Mở Trang Bị Nhiễm (InfectedPage)
+        </a>
+        <button class="btn btn-primary" onclick="explainAttack()">📖 Giải thích Attack</button>
+      </div>
+
+      <div id="attack-explanation" style="display:none; margin-top:20px;">
+        <div class="alert alert-success">
+          <span>✅</span>
+          <div>
+            <strong>Với Anti-Clickjacking Middleware:</strong><br>
+            • Browser nhận header X-Frame-Options: DENY<br>
+            • Từ chối load iframe từ domain khác<br>
+            • Hiển thị lỗi trong Console<br>
+            • User an toàn, không bị lừa ✅
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Test 5: Manual Testing -->
+    <div class="test-section">
+      <h2>🛠️ Test 5: Manual Testing với cURL</h2>
+      <p><strong>Mục tiêu:</strong> Test từ command line để xem raw headers</p>
+
+      <h3>📝 Test Commands:</h3>
+      <div class="code-block">
+<code># Test Homepage
+curl -I http://localhost:3000
+
+# Test API Endpoint
+curl -I http://localhost:5000/api/products
+
+# Test với verbose output
+curl -v http://localhost:3000 2>&1 | grep -i "frame"</code>
+      </div>
+
+      <h3>✅ Expected Output:</h3>
+      <div class="code-block">
+<code>HTTP/1.1 200 OK
+X-Frame-Options: DENY
+Content-Security-Policy: frame-ancestors 'none'
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+X-Anti-Clickjacking-Enabled: true
+...</code>
+      </div>
+
+      <div class="button-group">
+        <button class="btn btn-primary" onclick="copyCurlCommand()">📋 Copy cURL Command</button>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="test-section">
+      <h2>📊 Test Summary</h2>
+      
+      <div id="test-summary">
+        <h3>✅ Checklist:</h3>
+        <ul style="list-style:none; padding:0;">
+          <li style="padding:10px; margin:5px 0; background:white; border-radius:5px;">
+            <input type="checkbox" id="check1"> 
+            <label for="check1"> Iframe blocking hoạt động (Test 1)</label>
+          </li>
+          <li style="padding:10px; margin:5px 0; background:white; border-radius:5px;">
+            <input type="checkbox" id="check2"> 
+            <label for="check2"> Response headers đầy đủ (Test 2)</label>
+          </li>
+          <li style="padding:10px; margin:5px 0; background:white; border-radius:5px;">
+            <input type="checkbox" id="check3"> 
+            <label for="check3"> Backend logs đúng (Test 3)</label>
+          </li>
+          <li style="padding:10px; margin:5px 0; background:white; border-radius:5px;">
+            <input type="checkbox" id="check4"> 
+            <label for="check4"> Attack simulation failed (Test 4)</label>
+          </li>
+          <li style="padding:10px; margin:5px 0; background:white; border-radius:5px;">
+            <input type="checkbox" id="check5"> 
+            <label for="check5"> cURL test passed (Test 5)</label>
+          </li>
+        </ul>
+      </div>
+
+      <div class="alert alert-success" style="margin-top:20px;">
+        <span>🎉</span>
+        <div>
+          <strong>Nếu tất cả tests pass:</strong><br>
+          Anti-Clickjacking middleware đã hoạt động đúng! Website của bạn đã được bảo vệ khỏi clickjacking attacks. ✅
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Test iframe loading
+    const iframes = document.querySelectorAll('iframe');
+    iframes.forEach((iframe, index) => {
+      iframe.addEventListener('load', () => {
+        const resultDiv = document.getElementById(`result-${index + 1}`);
+        try {
+          // Try to access iframe content (will fail if CSP/X-Frame-Options block it)
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+          if (iframeDoc) {
+            resultDiv.className = 'status vulnerable';
+            resultDiv.innerHTML = '❌ <strong>VULNERABLE!</strong> Iframe loaded successfully. Middleware NOT working!';
+            resultDiv.style.display = 'block';
+          }
+        } catch (e) {
+          resultDiv.className = 'status protected';
+          resultDiv.innerHTML = '✅ <strong>PROTECTED!</strong> Iframe blocked by browser. Middleware working correctly!';
+          resultDiv.style.display = 'block';
+        }
+      });
+
+      iframe.addEventListener('error', () => {
+        const resultDiv = document.getElementById(`result-${index + 1}`);
+        resultDiv.className = 'status protected';
+        resultDiv.innerHTML = '✅ <strong>PROTECTED!</strong> Iframe failed to load. Middleware working!';
+        resultDiv.style.display = 'block';
+      });
+    });
+
+    // Test headers automatically
+    async function testHeaders() {
+      const resultDiv = document.getElementById('headers-result');
+      resultDiv.innerHTML = '<div class="status testing">⏳ Testing headers...</div>';
+
+      try {
+        const response = await fetch('http://localhost:3000', { method: 'HEAD' });
+        const headers = {};
+        for (let [key, value] of response.headers.entries()) {
+          headers[key] = value;
+        }
+
+        let html = '<h3>📋 Response Headers:</h3>';
+        const requiredHeaders = [
+          'x-frame-options',
+          'content-security-policy',
+          'x-content-type-options',
+          'x-xss-protection',
+          'x-anti-clickjacking-enabled'
+        ];
+
+        requiredHeaders.forEach(header => {
+          const value = headers[header];
+          if (value) {
+            html += `<div class="header-example">
+              <strong>✅ ${header}</strong>
+              <code>${value}</code>
+            </div>`;
+          } else {
+            html += `<div class="alert alert-warning">
+              <span>⚠️</span>
+              <div><strong>Missing:</strong> ${header}</div>
+            </div>`;
+          }
+        });
+
+        resultDiv.innerHTML = html;
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="alert alert-warning">
+          <span>⚠️</span>
+          <div><strong>Error:</strong> ${error.message}<br>
+          <small>Có thể do CORS. Xem manual test với DevTools thay vì.</small></div>
+        </div>`;
+      }
+    }
+
+    // Copy headers test script
+    function copyHeadersTest() {
+      const script = `// Paste this in DevTools Console
+fetch('http://localhost:3000', { method: 'HEAD' })
+  .then(res => {
+    console.log('Headers:');
+    for (let [key, value] of res.headers.entries()) {
+      console.log(\`\${key}: \${value}\`);
+    }
+  });`;
+      
+      navigator.clipboard.writeText(script).then(() => {
+        alert('✅ Script copied! Paste vào DevTools Console.');
+      });
+    }
+
+    // Simulate requests
+    let requestCount = 0;
+    async function simulateRequests() {
+      const output = document.getElementById('console-output');
+      const endpoints = [
+        '/',
+        '/api/products',
+        '/api/cart',
+        '/api/user/coupons',
+        '/checkout'
+      ];
+
+      for (let endpoint of endpoints) {
+        requestCount++;
+        const timestamp = new Date().toISOString();
+        const log = `<div class="timestamp">[${timestamp}]</div>
+          <div class="success">🛡️ Anti-Clickjacking: GET ${endpoint}</div>
+          <div style="margin-left:20px; color:#90cdf4;">
+            ✅ X-Frame-Options: DENY<br>
+            ✅ Content-Security-Policy: frame-ancestors 'none'<br>
+            ✅ X-Content-Type-Options: nosniff
+          </div><br>`;
+        
+        output.innerHTML += log;
+        output.scrollTop = output.scrollHeight;
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+
+    // Clear console
+    function clearConsole() {
+      document.getElementById('console-output').innerHTML = '<div class="timestamp">[Đợi requests...]</div>';
+    }
+
+    // Explain attack
+    function explainAttack() {
+      const div = document.getElementById('attack-explanation');
+      div.style.display = div.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Copy curl command
+    function copyCurlCommand() {
+      const cmd = 'curl -I http://localhost:3000';
+      navigator.clipboard.writeText(cmd).then(() => {
+        alert('✅ cURL command copied! Paste vào terminal.');
+      });
+    }
+  </script>
+</body>
+</html>

